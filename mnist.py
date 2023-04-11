@@ -3,6 +3,9 @@ import torch
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Using: ", device)
+
 transform = transforms.Compose([transforms.ToTensor(),
                                  transforms.Normalize(
                                      mean = 0.5,
@@ -21,11 +24,13 @@ data_test = datasets.MNIST(root = "./data/",
 data_loader_train = torch.utils.data.DataLoader(dataset = data_train,
                                                 batch_size = 64,
                                                 shuffle = True,
+                                                num_workers = 4,
                                                 )
 
 data_loader_test = torch.utils.data.DataLoader(dataset = data_test,
                                                 batch_size = 64,
                                                 shuffle = True,
+                                                num_workers = 4,
                                                 )
 
 class Model(torch.nn.Module):
@@ -51,7 +56,8 @@ class Model(torch.nn.Module):
         x = self.dense(x)
         return x
 
-model = Model()
+model = Model().to(device)
+
 cost = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters())
 epochs = 5
@@ -63,7 +69,7 @@ for epoch in range(epochs):
     print("="*10)
     for data in data_loader_train:
         x_train, y_train = data
-        x_train, y_train = Variable(x_train), Variable(y_train)
+        x_train, y_train = x_train.to(device), y_train.to(device)
         outputs = model(x_train)
         _, pred = torch.max(outputs.data, 1)
         optimizer.zero_grad()
