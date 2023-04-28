@@ -71,22 +71,22 @@ for epoch in range(epochs):
         x_train, y_train = data
         x_train, y_train = x_train.to(device), y_train.to(device)
         outputs = model(x_train)
-        _, pred = torch.max(outputs.data, 1)
+        _, pred = torch.max(outputs, 1)
         optimizer.zero_grad()
         loss = cost(outputs, y_train)
 
         loss.backward()
         optimizer.step()
-        running_loss += loss.data.item()
-        running_correct += torch.sum(pred == y_train.data)
+        running_loss += loss.item()
+        running_correct += torch.sum(pred == y_train)
     
     testing_correct = 0
     for data in data_loader_test:
         x_test, y_test = data
-        x_test, y_test = Variable(x_test), Variable(y_test)
+        x_test, y_test = x_test.to(device), y_test.to(device)
         outputs = model(x_test)
-        _, pred = torch.max(outputs.data, 1)
-        testing_correct += torch.sum(pred == y_test.data)
+        _, pred = torch.max(outputs, 1)
+        testing_correct += torch.sum(pred == y_test)
 
     print("Loss is: {:.4f}, Train Acc is: {:.4f}%, Test Acc is: {:.4f}%\n".format(
         running_loss / len(data_train),
